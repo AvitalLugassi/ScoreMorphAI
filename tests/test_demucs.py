@@ -16,7 +16,7 @@ class TestSourceSeparation(unittest.TestCase):
         """Clean up after tests"""
         pass
     
-    @patch('services.source_separation.SourceSeparator')
+    @patch('backend.services.source_separation.SourceSeparator')
     def test_separate_audio(self, mock_separator):
         """Test basic audio separation"""
         mock_separator.return_value.separate.return_value = {
@@ -32,7 +32,7 @@ class TestSourceSeparation(unittest.TestCase):
         self.assertIn('vocals', result)
         self.assertIn('drums', result)
     
-    @patch('services.source_separation.SourceSeparator')
+    @patch('backend.services.source_separation.SourceSeparator')
     def test_separate_vocals_instruments(self, mock_separator):
         """Test vocals/instruments separation"""
         mock_separator.return_value.separate_vocals_instruments.return_value = {
