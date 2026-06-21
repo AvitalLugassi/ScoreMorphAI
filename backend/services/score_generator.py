@@ -1,37 +1,29 @@
-from music21 import converter, stream
+from backend.services.music_processing_service import process_song
+from backend.services.midi_builder import transcribe_to_scale
+from backend.models.arrangement_request import ArrangementRequest
 
 
-def generate_score(midi_path, output_path):
+def generate(audio_path: str, request: ArrangementRequest) -> dict:
     """
-    Convert MIDI file into MusicXML score.
+    Main orchestrator for parts 1 and 2.
+    Analyzes audio and transcribes melody to correct scale.
 
-    Args:
-        midi_path: path to MIDI file
-        output_path: where to save MusicXML
-
-    Returns:
-        generated file path
+    Returns everything needed for part 3 (arrangement).
     """
+    analysis = process_song(audio_path)
 
-    score = converter.parse(midi_path)
-
-    score.write(
-        "musicxml",
-        fp=output_path
+    musicxml_path = transcribe_to_scale(
+        midi_path=analysis["midi_path"],
+        musical_key=analysis["musical_key"]
     )
 
-    return output_path
-
-
-
-def save_midi(score, output_path):
-    """
-    Save music21 score as MIDI.
-    """
-
-    score.write(
-        "midi",
-        fp=output_path
-    )
-
-    return output_path
+    return {
+        "musicxml_path": musicxml_path,
+        "musical_key": analysis["musical_key"],
+        "bpm": analysis["bpm"],
+        "chords": analysis["chords"],
+        "style": request.style,
+        "difficulty": request.difficulty,
+        "instruments": request.instruments,
+        "voices_count": request.voices_count
+    }

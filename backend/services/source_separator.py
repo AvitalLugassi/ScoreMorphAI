@@ -28,33 +28,15 @@ class SourceSeparator:
             raise FileNotFoundError(
                 f"Audio file does not exist: {audio_path}"
             )
-        command = [
-            sys.executable,
-            "-m",
-            "demucs.separate",
-            "-n",
-            Config.DEMUCS_MODEL,
-            audio_path,
-            "-o",
-            Config.SEPARATED_DIR
-        ]
-
-        subprocess.run(
-            command,
-            check=True
-        )
 
         song_name = Path(audio_path).stem
+        output_dir = Path(Config.SEPARATED_DIR) / Config.DEMUCS_MODEL / song_name
+        stems = ["vocals", "drums", "bass", "other"]
 
-        output_dir = (
-                Path(Config.SEPARATED_DIR)
-                / Config.DEMUCS_MODEL
-                / song_name
-        )
+        if not all((output_dir / f"{s}.wav").exists() for s in stems):
+            subprocess.run(
+                [sys.executable, "-m", "demucs.separate", "-n", Config.DEMUCS_MODEL, audio_path, "-o", Config.SEPARATED_DIR],
+                check=True
+            )
 
-        return {
-            "vocals": str(output_dir / "vocals.wav"),
-            "drums": str(output_dir / "drums.wav"),
-            "bass": str(output_dir / "bass.wav"),
-            "other": str(output_dir / "other.wav")
-        }
+        return {s: str(output_dir / f"{s}.wav") for s in stems}
