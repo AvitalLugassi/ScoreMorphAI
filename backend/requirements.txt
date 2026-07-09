@@ -38,3 +38,6 @@ threadpoolctl==3.6.0
 typing_extensions==4.15.0
 urllib3==2.7.0
 webcolors==25.10.0
+# Future AI models:
+# crema>=0.3.0  # For chord detection
+# madmom>=0.16.1  # Alternative chord detection
