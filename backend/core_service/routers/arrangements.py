@@ -1,9 +1,9 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
-from ..database import get_db
-from ..models import User
-from ..schemas import ArrangementCreate, ArrangementResponse
-from ..services import get_current_user, create_arrangement, get_user_arrangements
+from database import get_db
+from models import User
+from schemas import ArrangementCreate, ArrangementResponse
+from services import get_current_user, create_arrangement, get_user_arrangements
 
 router = APIRouter(prefix="/arrangements", tags=["arrangements"])
 

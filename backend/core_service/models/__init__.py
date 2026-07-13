@@ -1,2 +1,2 @@
-from .user import User
-from .arrangement import Arrangement, ArrangementStatus
+from user_model import User
+from arrangement_model import Arrangement, ArrangementStatus

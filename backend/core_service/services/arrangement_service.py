@@ -1,7 +1,7 @@
 import json
 from sqlalchemy.orm import Session
-from ..models import Arrangement, User
-from ..schemas.arrangement import ArrangementCreate
+from models import Arrangement, User
+from arrangement_schema import ArrangementCreate
 
 
 def create_arrangement(db: Session, data: ArrangementCreate, user: User) -> Arrangement:
@@ -25,7 +25,6 @@ def get_user_arrangements(db: Session, user: User) -> list[Arrangement]:
 
 
 def _deserialize(row: Arrangement) -> Arrangement:
-    """Convert the JSON instruments string back to a Python list in-place."""
     if isinstance(row.instruments, str):
         row.instruments = json.loads(row.instruments)
     return row

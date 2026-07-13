@@ -1,2 +1,2 @@
-from .user import UserRegister, UserLogin, UserResponse, TokenResponse
-from .arrangement import ArrangementCreate, ArrangementResponse
+from user_schema import UserRegister, UserLogin, UserResponse, TokenResponse
+from arrangement_schema import ArrangementCreate, ArrangementResponse
