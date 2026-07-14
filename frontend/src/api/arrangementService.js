@@ -1,4 +1,4 @@
-import { coreClient, aiClient } from "./client";
+import { coreClient } from "./client";
 
 export async function submitArrangement({ audioFile, style, difficulty, instruments, voices_count }) {
   const form = new FormData();
@@ -8,7 +8,7 @@ export async function submitArrangement({ audioFile, style, difficulty, instrume
   instruments.forEach((inst) => form.append("instruments", inst));
   form.append("voices_count", String(voices_count));
 
-  const { data } = await aiClient.post("/api/upload/audio", form, {
+  const { data } = await coreClient.post("/arrangements", form, {
     headers: { "Content-Type": "multipart/form-data" },
   });
   return data;
@@ -20,7 +20,7 @@ export async function fetchArrangements() {
 }
 
 export async function exportScore(scoreId, format = "pdf") {
-  const { data } = await aiClient.get(`/api/export/score/${scoreId}`, {
+  const { data } = await coreClient.get(`/arrangements/${scoreId}/export`, {
     params: { format },
     responseType: "blob",
   });

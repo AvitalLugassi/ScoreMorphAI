@@ -54,6 +54,13 @@ class ArrangementCreate(BaseModel):
         return v
 
 
+class ArrangementComplete(BaseModel):
+    midi_path:     Optional[str] = None
+    musicxml_path: Optional[str] = None
+    pdf_path:      Optional[str] = None
+    status:        str = "completed"
+
+
 class ArrangementResponse(BaseModel):
     id:           int
     title:        Optional[str]
