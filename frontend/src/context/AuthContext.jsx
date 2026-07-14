@@ -1,13 +1,27 @@
-import { createContext, useContext, useState, useCallback } from "react";
+import { createContext, useContext, useState, useCallback, useEffect } from "react";
 import { login as apiLogin, signup as apiSignup, logout as apiLogout, getStoredToken } from "../api/authService";
+import { coreClient } from "../api/client";
 
 const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(() => {
-    // Restore session from token presence (swap for JWT decode if needed)
-    return getStoredToken() ? { token: getStoredToken() } : null;
-  });
+  const [user, setUser]       = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const token = getStoredToken();
+    if (!token) {
+      setLoading(false);
+      return;
+    }
+    coreClient.get("/auth/me", { timeout: 5000 })
+      .then(({ data }) => setUser(data))
+      .catch(() => {
+        apiLogout();
+        setUser(null);
+      })
+      .finally(() => setLoading(false));
+  }, []);
 
   const login = useCallback(async (email, password) => {
     const u = await apiLogin(email, password);
@@ -25,7 +39,7 @@ export function AuthProvider({ children }) {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, login, signup, logout }}>
+    <AuthContext.Provider value={{ user, login, signup, logout, loading }}>
       {children}
     </AuthContext.Provider>
   );

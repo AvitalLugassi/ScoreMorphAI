@@ -7,7 +7,7 @@ export default function Navbar() {
 
   const handleLogout = () => {
     logout();
-    navigate("/");
+    navigate("/", { replace: true });
   };
 
   return (
@@ -22,6 +22,9 @@ export default function Navbar() {
             <Link to="/new" className="px-4 py-1.5 rounded-full bg-brand-600 hover:bg-brand-700 transition font-medium">
               + New
             </Link>
+            <span className="text-gray-400">
+              Hi, <span className="text-white font-medium">{user.username}</span>
+            </span>
             <button onClick={handleLogout} className="text-gray-400 hover:text-white transition">
               Logout
             </button>

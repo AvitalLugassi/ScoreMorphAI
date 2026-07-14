@@ -15,7 +15,7 @@ export default function Login() {
       await login(email, password);
       navigate("/dashboard");
     } catch (e) {
-      setServerError(e.response?.data?.error || "Login failed. Please try again.");
+      setServerError(e.response?.data?.detail || e.response?.data?.error || "Login failed. Please try again.");
     }
   };
 

@@ -1,9 +1,10 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from database import get_db
-from models import User
-from schemas import ArrangementCreate, ArrangementResponse
-from services import get_current_user, create_arrangement, get_user_arrangements
+from user_model import User
+from arrangement_schema import ArrangementCreate, ArrangementResponse
+from services import get_current_user
+from controllers import ArrangementController
 
 router = APIRouter(prefix="/arrangements", tags=["arrangements"])
 
@@ -13,8 +14,7 @@ def list_arrangements(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    """Return all arrangements belonging to the authenticated user."""
-    return get_user_arrangements(db, current_user)
+    return ArrangementController(db).list_for_user(current_user)
 
 
 @router.post("", response_model=ArrangementResponse, status_code=201)
@@ -23,8 +23,4 @@ def create(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    """
-    Create an arrangement record (status=pending).
-    The ai_service picks this up and updates status + output paths when done.
-    """
-    return create_arrangement(db, body, current_user)
+    return ArrangementController(db).create(body, current_user)

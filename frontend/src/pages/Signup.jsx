@@ -15,7 +15,7 @@ export default function Signup() {
       await signup(email, password);
       navigate("/dashboard");
     } catch (e) {
-      setServerError(e.response?.data?.error || "Sign up failed. Please try again.");
+      setServerError(e.response?.data?.detail || e.response?.data?.error || "Sign up failed. Please try again.");
     }
   };
 

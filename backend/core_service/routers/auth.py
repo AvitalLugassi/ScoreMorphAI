@@ -1,42 +1,24 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from database import get_db
-from models import User
-from schemas import UserRegister, UserLogin, TokenResponse, UserResponse
-from services import hash_password, verify_password, create_access_token
+from user_model import User
+from user_schema import UserRegister, UserLogin, TokenResponse, UserResponse
+from services import get_current_user
+from controllers import AuthController
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
 
-@router.post("/register", response_model=TokenResponse, status_code=status.HTTP_201_CREATED)
+@router.post("/register", response_model=TokenResponse, status_code=201)
 def register(body: UserRegister, db: Session = Depends(get_db)):
-    if db.query(User).filter(User.email == body.email).first():
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Email already registered")
-    if db.query(User).filter(User.username == body.username).first():
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Username already taken")
-
-    user = User(
-        email           = body.email,
-        username        = body.username,
-        hashed_password = hash_password(body.password),
-    )
-    db.add(user)
-    db.commit()
-    db.refresh(user)
-
-    return TokenResponse(
-        access_token = create_access_token(user.id),
-        user         = UserResponse.model_validate(user),
-    )
+    return AuthController(db).register(body)
 
 
 @router.post("/login", response_model=TokenResponse)
 def login(body: UserLogin, db: Session = Depends(get_db)):
-    user = db.query(User).filter(User.email == body.email).first()
-    if not user or not verify_password(body.password, user.hashed_password):
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
+    return AuthController(db).login(body)
 
-    return TokenResponse(
-        access_token = create_access_token(user.id),
-        user         = UserResponse.model_validate(user),
-    )
+
+@router.get("/me", response_model=UserResponse)
+def me(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    return AuthController(db).me(current_user)

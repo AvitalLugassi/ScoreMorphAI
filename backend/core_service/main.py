@@ -1,21 +1,22 @@
-import sys
-import os
+import sys, os
 
-BASE = os.path.dirname(__file__)
-for folder in ["", "models", "schemas", "services", "routers"]:
-    p = os.path.join(BASE, folder)
-    if p not in sys.path:
-        sys.path.insert(0, p)
+# Add all subdirectories to path once — before any other imports
+_base = os.path.dirname(__file__)
+for _folder in ["", "models", "schemas", "services", "routers", "controllers", "repositories", "middleware"]:
+    _p = os.path.join(_base, _folder)
+    if _p not in sys.path:
+        sys.path.insert(0, _p)
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from config import settings
 from database import engine, Base
-from routers import auth_router, arrangements_router
 
-# Register models with SQLAlchemy before create_all
-from user_model import User       # noqa: F401
-from arrangement_model import Arrangement  # noqa: F401
+# Import models ONCE so SQLAlchemy registers them
+import user_model        # noqa: F401
+import arrangement_model # noqa: F401
+
+from routers import auth_router, arrangements_router
 
 
 def create_app() -> FastAPI:
