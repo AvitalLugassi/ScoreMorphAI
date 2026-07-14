@@ -1,7 +1,10 @@
+import os
 import librosa
 from basic_pitch.inference import predict
 
 NOTE_NAMES = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"]
+
+_MIDI_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), "data", "midi")
 
 
 def detect_key(audio_path: str) -> str:
@@ -43,7 +46,8 @@ def extract_melody(audio_path: str):
     """
     model_output, midi_data, note_events = predict(audio_path)
 
-    output_path = "data/midi/melody.mid"
+    os.makedirs(_MIDI_DIR, exist_ok=True)
+    output_path = os.path.join(_MIDI_DIR, "melody.mid")
     midi_data.write(output_path)
 
     musical_key = detect_key(audio_path)

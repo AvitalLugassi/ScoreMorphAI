@@ -1,29 +1,31 @@
-"""Score generation routes"""
+from flask import Blueprint, request, jsonify, send_file
+import os
 
-from flask import Blueprint, request, jsonify
-from services.score_generator import ScoreGenerator
-
-score_bp = Blueprint('score', __name__, url_prefix='/api/score')
+export_bp = Blueprint('export', __name__, url_prefix='/api/export')
 
 
-@score_bp.route('/generate', methods=['POST'])
-def generate_score():
-    """Generate a score from audio file"""
-    data = request.get_json()
-    
-    if not data or 'file_path' not in data:
-        return jsonify({'error': 'No file path provided'}), 400
-    
-    try:
-        generator = ScoreGenerator()
-        score = generator.generate(data['file_path'])
-        return jsonify({'success': True, 'score': score}), 200
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
+@export_bp.route('/pdf', methods=['GET'])
+def export_pdf():
+    """Download a generated PDF score by path."""
+    pdf_path = request.args.get('path')
+    if not pdf_path or not os.path.exists(pdf_path):
+        return jsonify({'error': 'PDF not found'}), 404
+    return send_file(pdf_path, as_attachment=True, download_name='arrangement.pdf')
 
 
-@score_bp.route('/list', methods=['GET'])
-def list_scores():
-    """List all generated scores"""
-    # Implementation here
-    return jsonify({'scores': []}), 200
+@export_bp.route('/musicxml', methods=['GET'])
+def export_musicxml():
+    """Download a generated MusicXML file by path."""
+    xml_path = request.args.get('path')
+    if not xml_path or not os.path.exists(xml_path):
+        return jsonify({'error': 'MusicXML not found'}), 404
+    return send_file(xml_path, as_attachment=True, download_name='arrangement.musicxml')
+
+
+@export_bp.route('/midi', methods=['GET'])
+def export_midi():
+    """Download a generated MIDI file by path."""
+    midi_path = request.args.get('path')
+    if not midi_path or not os.path.exists(midi_path):
+        return jsonify({'error': 'MIDI not found'}), 404
+    return send_file(midi_path, as_attachment=True, download_name='arrangement.mid')

@@ -1,18 +1,17 @@
-import librosa
+import pretty_midi
 
 
-def detect_tempo(audio_path):
+def detect_tempo(midi_path: str) -> dict:
     """
-    Detect BPM from audio file.
+    Extract BPM from a MIDI file produced by Basic Pitch.
+    Consistent with the MIDI that will be used for MusicXML generation.
+
+    Args:
+        midi_path: path to MIDI file
+
+    Returns:
+        dict with bpm (float)
     """
-
-    y, sr = librosa.load(audio_path)
-
-    tempo, _ = librosa.beat.beat_track(
-        y=y,
-        sr=sr
-    )
-
-    return {
-        "bpm": round(float(tempo[0] if hasattr(tempo, '__len__') else tempo), 2)
-    }
+    midi = pretty_midi.PrettyMIDI(midi_path)
+    bpm = midi.estimate_tempo()
+    return {"bpm": round(float(bpm), 2)}

@@ -2,7 +2,7 @@ from pathlib import Path
 import subprocess
 import sys
 
-from backend.config import Config
+from config import Config
 
 
 class SourceSeparator:

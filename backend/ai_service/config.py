@@ -32,9 +32,11 @@ class Config:
 
     # Directories
 
-    SEPARATED_DIR = "data/separated"
-    MIDI_DIR = "data/midi"
-    SCORE_DIR = "data/scores"
+    _BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))  # project root
+
+    SEPARATED_DIR = os.path.join(_BASE_DIR, "data", "separated")
+    MIDI_DIR      = os.path.join(_BASE_DIR, "data", "midi")
+    SCORE_DIR     = os.path.join(_BASE_DIR, "data", "scores")
 
     # Demucs
 
@@ -48,3 +50,7 @@ class Config:
     # Tempo
 
     DEFAULT_BPM = 120
+
+    # Model
+
+    MODEL_PATH = os.path.join(os.path.dirname(__file__), 'models', 'orchestra_transformer_model.pth')
