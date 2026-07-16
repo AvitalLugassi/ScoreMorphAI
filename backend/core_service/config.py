@@ -17,6 +17,8 @@ class Settings(BaseSettings):
     # App
     APP_ENV: str = "development"
     CORS_ORIGINS: str = "http://localhost:3000"
+    AI_SERVICE_URL: str = "http://127.0.0.1:5000"
+    CORE_SERVICE_URL: str = "http://127.0.0.1:8000"
 
     # AI Service
     AI_SERVICE_URL: str = "http://localhost:5000"

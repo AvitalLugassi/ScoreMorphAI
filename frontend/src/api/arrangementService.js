@@ -1,4 +1,4 @@
-import { coreClient, aiClient } from "./client";
+import { coreClient } from "./client";
 
 export async function submitArrangement({ audioFile, style, difficulty, instruments, voices_count, title, original_song }) {
   const form = new FormData();
