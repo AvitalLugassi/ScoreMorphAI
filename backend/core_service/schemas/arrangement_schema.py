@@ -19,21 +19,22 @@ class DifficultyEnum(str, Enum):
 
 
 class InstrumentEnum(str, Enum):
-    piano      = "piano"
-    guitar     = "guitar"
-    bass       = "bass"
-    strings    = "strings"
-    brass      = "brass"
-    reed       = "reed"
-    synth_lead = "synth_lead"
-    ensemble   = "ensemble"
+    piano   = "piano"
+    guitar  = "guitar"
+    bass    = "bass"
+    violin  = "violin"
+    cello   = "cello"
+    trumpet = "trumpet"
+    flute   = "flute"
+    drums   = "drums"
 
 
-VALID_VOICES = {2, 3, 4}
+VALID_VOICES = {1, 2, 3, 4}
 
 
 class ArrangementCreate(BaseModel):
-    title:        Optional[str] = None
+    title:         Optional[str] = None
+    original_song: Optional[str] = None
     style:        StyleEnum
     difficulty:   DifficultyEnum
     instruments:  list[InstrumentEnum]
@@ -55,8 +56,9 @@ class ArrangementCreate(BaseModel):
 
 
 class ArrangementResponse(BaseModel):
-    id:           int
-    title:        Optional[str]
+    id:            int
+    title:         Optional[str]
+    original_song: Optional[str]
     style:        str
     difficulty:   str
     instruments:  list[str]

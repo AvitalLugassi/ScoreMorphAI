@@ -54,3 +54,15 @@ class Config:
     # Model
 
     MODEL_PATH = os.path.join(os.path.dirname(__file__), 'models', 'orchestra_transformer_model.pth')
+
+
+class DevelopmentConfig(Config):
+    DEBUG = True
+
+
+class TestingConfig(Config):
+    TESTING = True
+
+
+class ProductionConfig(Config):
+    DEBUG = False

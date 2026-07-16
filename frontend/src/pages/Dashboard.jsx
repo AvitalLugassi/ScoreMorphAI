@@ -15,6 +15,15 @@ export default function Dashboard() {
       .finally(() => setLoading(false));
   }, []);
 
+  useEffect(() => {
+    const hasProcessing = arrangements.some((a) => a.status === "processing");
+    if (!hasProcessing) return;
+    const interval = setInterval(() => {
+      fetchArrangements().then(setArrangements).catch(() => {});
+    }, 30000);
+    return () => clearInterval(interval);
+  }, [arrangements]);
+
   const handleExport = async (id, format) => {
     const blob = await exportScore(id, format);
     const url = URL.createObjectURL(blob);
@@ -50,6 +59,7 @@ export default function Dashboard() {
               <StatusBadge status={a.status} />
             </div>
             <div className="text-xs text-gray-500 space-y-0.5">
+              <p>Original Song: <span className="text-gray-300">{a.original_song || "—"}</span></p>
               <p>Style: <span className="text-gray-300 capitalize">{a.style}</span></p>
               <p>Difficulty: <span className="text-gray-300 capitalize">{a.difficulty}</span></p>
               <p>Instruments: <span className="text-gray-300">{a.instruments?.join(", ")}</span></p>

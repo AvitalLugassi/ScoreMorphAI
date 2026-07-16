@@ -6,12 +6,13 @@ import { submitArrangement } from "../api/arrangementService";
 // ── Enum constants matching backend ArrangementRequest ───────────────────────
 const STYLES      = ["classical", "pop", "rock", "jazz", "blues"];
 const DIFFICULTIES = ["easy", "medium", "hard"];
-const INSTRUMENTS = ["piano", "guitar", "bass", "strings", "brass", "reed", "synth_lead", "ensemble"];
-const VOICES      = [2, 3, 4];
+const INSTRUMENTS = ["piano", "guitar", "bass", "violin", "cello", "trumpet", "flute", "drums"];
+const VOICES      = [1, 2, 3, 4];
 const ACCEPTED_AUDIO = ["audio/mpeg", "audio/wav", "audio/flac", "audio/ogg", "audio/mp4"];
 
 // ── Step sub-components ───────────────────────────────────────────────────────
-function StepUpload({ register, errors }) {
+function StepUpload({ register, errors, watch }) {
+  const fileName = watch("audioFile")?.[0]?.name?.replace(/\.[^/.]+$/, "") || "";
   return (
     <div className="space-y-4">
       <h2 className="text-xl font-semibold">Upload Audio</h2>
@@ -31,6 +32,24 @@ function StepUpload({ register, errors }) {
         })}
       />
       {errors.audioFile && <p className="text-red-400 text-sm">{errors.audioFile.message}</p>}
+
+      <div>
+        <label className="block text-sm mb-1 text-gray-400">Arrangement Title</label>
+        <input
+          type="text"
+          placeholder="Enter a title for this arrangement"
+          className="w-full bg-gray-900 border border-gray-700 rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-brand-500"
+          {...register("title", { required: "Please enter a title" })}
+        />
+        {errors.title && <p className="text-red-400 text-xs mt-1">{errors.title.message}</p>}
+      </div>
+
+      {fileName && (
+        <div>
+          <label className="block text-sm mb-1 text-gray-400">Original Song</label>
+          <p className="text-sm text-gray-300 bg-gray-900 border border-gray-800 rounded-lg px-4 py-2">{fileName}</p>
+        </div>
+      )}
     </div>
   );
 }
@@ -133,7 +152,8 @@ function StepReview({ getValues }) {
     <div className="space-y-4">
       <h2 className="text-xl font-semibold">Review & Submit</h2>
       <div className="rounded-xl border border-gray-800 bg-gray-900 p-5 text-sm space-y-2">
-        <p><span className="text-gray-400">File:</span> {v.audioFile?.[0]?.name}</p>
+        <p><span className="text-gray-400">Title:</span> {v.title}</p>
+        <p><span className="text-gray-400">Original Song:</span> {v.audioFile?.[0]?.name}</p>
         <p><span className="text-gray-400">Style:</span> <span className="capitalize">{v.style}</span></p>
         <p><span className="text-gray-400">Difficulty:</span> <span className="capitalize">{v.difficulty}</span></p>
         <p><span className="text-gray-400">Instruments:</span> {v.instruments?.join(", ")}</p>
@@ -157,7 +177,7 @@ export default function NewArrangement() {
 
   // Fields to validate per step before advancing
   const STEP_FIELDS = [
-    ["audioFile"],
+    ["audioFile", "title"],
     ["style", "difficulty"],
     ["instruments", "voices_count"],
   ];
@@ -171,11 +191,13 @@ export default function NewArrangement() {
     setServerError("");
     try {
       await submitArrangement({
-        audioFile:   data.audioFile[0],
-        style:       data.style,
-        difficulty:  data.difficulty,
-        instruments: data.instruments,
-        voices_count: Number(data.voices_count),
+        audioFile:     data.audioFile[0],
+        style:         data.style,
+        difficulty:    data.difficulty,
+        instruments:   data.instruments,
+        voices_count:  Number(data.voices_count),
+        title:         data.title,
+        original_song: data.audioFile[0].name.replace(/\.[^/.]+$/, ""),
       });
       navigate("/dashboard");
     } catch (e) {
@@ -201,7 +223,7 @@ export default function NewArrangement() {
 
       <form onSubmit={handleSubmit(onSubmit)}>
         <div className="min-h-[260px]">
-          {step === 0 && <StepUpload register={register} errors={errors} />}
+          {step === 0 && <StepUpload register={register} errors={errors} watch={watch} />}
           {step === 1 && <StepStyle  register={register} errors={errors} />}
           {step === 2 && <StepInstruments register={register} errors={errors} watch={watch} />}
           {step === 3 && <StepReview getValues={getValues} />}

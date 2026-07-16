@@ -20,12 +20,13 @@ class ArrangementRepository:
         )
         return [self._deserialize(r) for r in rows]
 
-    def create(self, user_id: int, title: str | None, style: str,
-               difficulty: str, instruments: list[str], voices_count: int) -> Arrangement:
+    def create(self, user_id: int, title: str | None, original_song: str | None,
+               style: str, difficulty: str, instruments: list[str], voices_count: int) -> Arrangement:
         row = Arrangement(
-            user_id      = user_id,
-            title        = title,
-            style        = style,
+            user_id       = user_id,
+            title         = title,
+            original_song = original_song,
+            style         = style,
             difficulty   = difficulty,
             instruments  = json.dumps(instruments),
             voices_count = voices_count,
@@ -38,13 +39,15 @@ class ArrangementRepository:
     def update_status(self, arrangement_id: int, status: ArrangementStatus,
                       midi_path: str = None, musicxml_path: str = None,
                       pdf_path: str = None) -> Arrangement | None:
-        row = self.get_by_id(arrangement_id)
+        row = self.db.get(Arrangement, arrangement_id)
         if not row:
             return None
         row.status = status
         if midi_path:     row.midi_path     = midi_path
         if musicxml_path: row.musicxml_path = musicxml_path
         if pdf_path:      row.pdf_path      = pdf_path
+        if isinstance(row.instruments, list):
+            row.instruments = json.dumps(row.instruments)
         self.db.commit()
         self.db.refresh(row)
         return self._deserialize(row)

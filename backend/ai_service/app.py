@@ -1,6 +1,7 @@
 """Main application entry point for ScoreMorph-AI backend"""
 
 from flask import Flask, jsonify
+from flask_cors import CORS
 from config import Config
 from utils.logger import Logger
 
@@ -17,7 +18,8 @@ def create_app(config_class=Config):
     """
     app = Flask(__name__)
     app.config.from_object(config_class)
-    
+    CORS(app, origins=["http://localhost:3000", "http://127.0.0.1:8000"])
+
     # Initialize logger
     logger = Logger.get_logger(__name__)
     logger.info(f"Creating Flask app with {config_class.__name__} config")

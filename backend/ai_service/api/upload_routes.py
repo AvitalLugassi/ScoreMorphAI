@@ -47,4 +47,6 @@ def upload_audio():
     except ValueError as e:
         return jsonify({'error': f'Invalid parameter: {str(e)}'}), 400
     except Exception as e:
+        import traceback
+        traceback.print_exc()
         return jsonify({'error': str(e)}), 500

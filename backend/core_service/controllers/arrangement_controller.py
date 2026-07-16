@@ -9,8 +9,8 @@ class ArrangementController:
     def __init__(self, db: Session):
         self.service = ArrangementService(db)
 
-    def create(self, body: ArrangementCreate, user: User) -> ArrangementResponse:
-        arrangement = self.service.create(body, user)
+    def create(self, body: ArrangementCreate, user: User, file_path: str) -> ArrangementResponse:
+        arrangement = self.service.create(body, user, file_path)
         return ArrangementResponse.model_validate(arrangement)
 
     def list_for_user(self, user: User) -> list[ArrangementResponse]:

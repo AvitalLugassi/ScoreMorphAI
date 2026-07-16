@@ -19,6 +19,7 @@ class Arrangement(Base):
 
     # ── Request metadata (mirrors ArrangementRequest dataclass) ──
     title        = Column(String(255), nullable=True)
+    original_song = Column(String(255), nullable=True)
     style        = Column(String(50), nullable=False)          # classical|pop|rock|jazz|blues
     difficulty   = Column(String(20), nullable=False)          # easy|medium|hard
     instruments  = Column(Text, nullable=False)                # JSON array stored as text

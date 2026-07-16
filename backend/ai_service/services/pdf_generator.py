@@ -41,11 +41,14 @@ def generate_pdf(
     score.write("musicxml", fp=musicxml_path)
 
     pdf_path = base_name + ".pdf"
-    subprocess.run(
-        [MUSESCORE_PATH, "-T", "0", "--export-to", pdf_path, musicxml_path],
-        check=True,
-        capture_output=True
-    )
+    if os.path.exists(MUSESCORE_PATH):
+        subprocess.run(
+            [MUSESCORE_PATH, "-T", "0", "--export-to", pdf_path, musicxml_path],
+            check=True,
+            capture_output=True
+        )
+    else:
+        pdf_path = None
 
     return {
         "musicxml_path": musicxml_path,

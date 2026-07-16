@@ -18,6 +18,9 @@ class Settings(BaseSettings):
     APP_ENV: str = "development"
     CORS_ORIGINS: str = "http://localhost:3000"
 
+    # AI Service
+    AI_SERVICE_URL: str = "http://localhost:5000"
+
     @property
     def DATABASE_URL(self) -> str:
         return (
