@@ -9,33 +9,47 @@ from config import Config
 
 
 class ModelRunner:
-    """Singleton that loads the model once and runs inference."""
+    """
+    Singleton שטוען את המודל פעם אחת בלבד לזיכרון.
+    כל קריאה נוספת משתמשת באותו instance — חוסך זמן טעינה.
+    """
 
     _instance = None
 
     def __new__(cls):
+        # Singleton pattern — מחזיר את אותו instance בכל פעם
         if cls._instance is None:
             cls._instance = super().__new__(cls)
             cls._instance._loaded = False
         return cls._instance
 
     def _load(self):
+        """טוען את המודל מהדיסק לזיכרון — רק בפעם הראשונה."""
         if self._loaded:
-            return
+            return  # כבר טעון — אין צורך לטעון שוב
+
+        # בחירת device: GPU אם זמין, אחרת CPU
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+        # יצירת ארכיטקטורת המודל ריקה
         self.model = OrchestraTransformer().to(self.device)
+
+        # טעינת המשקלים המאומנים מהדיסק
+        # weights_only=True — אבטחה: מונע הרצת קוד שרירותי בעת טעינה
         state_dict = torch.load(Config.MODEL_PATH, map_location=self.device, weights_only=True)
         self.model.load_state_dict(state_dict)
+
+        # מצב evaluation — מכבה Dropout ו-BatchNorm לאינפרנס
         self.model.eval()
         self._loaded = True
 
     def run(
         self,
-        melody_midi_path: str,
+        melody_midi_path:  str,
         harmony_midi_path: str,
-        request: ArrangementRequest,
-        bpm: float,
-        output_midi_path: str
+        request:           ArrangementRequest,
+        bpm:               float,
+        output_midi_path:  str
     ) -> str:
         """
         Run inference: MIDI files + preferences → generated arrangement MIDI.
@@ -43,10 +57,15 @@ class ModelRunner:
         Returns:
             path to the generated MIDI file
         """
+        # טעינה עצלה (lazy loading) — טוען רק כשנדרש
         self._load()
 
-        inputs = build_model_inputs(melody_midi_path, harmony_midi_path, request, self.device)
+        # בניית tensors מהקלט
+        inputs = build_model_inputs(
+            melody_midi_path, harmony_midi_path, request, self.device
+        )
 
+        # inference_mode — מהיר יותר מ-no_grad, מכבה מעקב גרדיאנטים לחלוטין
         with torch.inference_mode():
             logits = self.model(
                 inputs["melody_in"],
@@ -54,7 +73,11 @@ class ModelRunner:
                 inputs["global_cond"],
                 inputs["inst_indices"]
             )
+            # logits shape: [1, 8, 256, 129] — batch=1, tracks=8, steps=256, classes=129
 
+        # בחירת הנוטה עם ההסתברות הגבוהה ביותר לכל step
+        # squeeze(0) מסיר את ה-batch dimension → shape: [8, 256]
         predictions = torch.argmax(logits, dim=-1).squeeze(0).cpu().numpy()
 
+        # המרת ה-predictions ל-MIDI ושמירה לדיסק
         return parse_model_output(predictions, request, bpm, output_midi_path)
